@@ -75,16 +75,20 @@ def sinc(x):
 def f1(X):
     return sinc(X[0]) * sinc(X[1])
 
-def generate_data(n, low, high):
+def f2(X):
+    out = X[0]**2 + X[1]**2 + 2*X[0]*X[1]*np.cos(np.pi*X[0]*X[1]) + X[0] + X[1] - 1
+    return out
+
+def generate_data(n, low, high, func):
     samples = []
     labels = []
     for i in range(n):
         if i < 100:
             samples.append(np.array([0.0, 0.0]))
-            labels.append(f1(samples[-1]))
+            labels.append(func(samples[-1]))
         else:
             samples.append(np.random.uniform(low, high, (2,)))
-            labels.append(f1(samples[-1]))
+            labels.append(func(samples[-1]))
 
     X = np.vstack(samples)
     y = np.vstack(labels)
@@ -93,9 +97,10 @@ def generate_data(n, low, high):
 if __name__ == "__main__":
     mlp = MLP(2, 1)
     loss_f = torch.nn.MSELoss()
-    opt = torch.optim.SGD(mlp.parameters(), lr=0.4)
+    opt = torch.optim.SGD(mlp.parameters(), lr=0.1)
 
-    features, labels = generate_data(1000, -4*np.pi, 4*np.pi)
+    #features, labels = generate_data(1000, -4*np.pi, 4*np.pi, f1)
+    features, labels = generate_data(1000, -1 , 1, f2)
     X_train, X_valid, y_train, y_valid = train_test_split(features, labels, test_size=0.3, random_state=88, shuffle=True)
 
     print("features shape: ", features.shape)
@@ -111,7 +116,7 @@ if __name__ == "__main__":
     plt.ylabel("loss")
     plt.show()
     print("mlp(0, 0): ", mlp(torch.Tensor([0.0, 0.0])))
-    print("f1(0, 0): ", f1(np.array([0.0, 0.0])))
+    print("f1(0, 0): ", f2(np.array([0.0, 0.0])))
 
 
 
