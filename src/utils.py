@@ -16,9 +16,15 @@ def f2(X):
     return out
 
 def generate_data(n, low, high, func):
+    """
+        Generate data from a uniform distribution between a real numbers
+        interval as a network features, and generate labels using a function
+        passed as a parameter.
+    """
     samples = []
     labels = []
     for i in range(n):
+        # dealing with division by zero
         if i < 100:
             samples.append(np.array([0.0, 0.0]))
             labels.append(func(samples[-1]))
