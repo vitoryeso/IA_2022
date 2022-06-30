@@ -51,7 +51,7 @@ if __name__ == "__main__":
     x_train, x_valid, y_train, y_valid = train_test_split(data, labels, test_size=0.3, random_state=42, shuffle=True)
 
     # Inint MLP model with input_size=2 and output_size=1
-    mlp = MLP(12, 2)
+    mlp = MLP(2, 2)
 
     # Defining training parameters
     loss_f = torch.nn.CrossEntropyLoss()
