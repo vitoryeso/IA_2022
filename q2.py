@@ -59,7 +59,7 @@ if __name__ == "__main__":
     EPOCHS = 150
 
     # Fit MLP on data
-    train_loss, valid_loss = mlp.fit(X_train, y_train, X_valid, y_valid, loss_f, opt, batch_size=8, epochs=EPOCHS)
+    train_loss, valid_loss = mlp.fit(x_train, y_train, x_valid, y_valid, loss_f, opt, batch_size=8, epochs=EPOCHS)
 
     # ploting and testing
     plt.plot(range(EPOCHS), train_loss, c='r', label="Train Loss")
