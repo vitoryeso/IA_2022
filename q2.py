@@ -1,9 +1,12 @@
 from src.MLP import MLP
 from src.utils import generate_data, f1, f2
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import seaborn as sn
+import pandas as pd
 
 def classe_1(n_samples, theta_min, theta_max):
     thetas = np.random.uniform(low=theta_min, high=theta_max, size=(n_samples,))
@@ -15,6 +18,7 @@ def classe_1(n_samples, theta_min, theta_max):
     sin_y = [np.sin(y_) for y_ in y]
 
     return np.vstack(zip(x, y, sin_x, sin_y)), np.array([(1, 0)] * n_samples)
+    #return np.vstack(zip(x, y)), np.array([(1, 0)] * n_samples)
 
 
 def classe_2(n_samples, theta_min, theta_max):
@@ -27,6 +31,7 @@ def classe_2(n_samples, theta_min, theta_max):
     sin_y = [np.sin(y_) for y_ in y]
 
     return np.vstack(zip(x, y, sin_x, sin_y)), np.array([(0, 1)] * n_samples)
+    #return np.vstack(zip(x, y)), np.array([(0, 1)] * n_samples)
 
 
 if __name__ == "__main__":
@@ -47,8 +52,8 @@ if __name__ == "__main__":
     """
     # Letra A)
     # features, labels = generate_data(1000, -4*np.pi, 4*np.pi, f1)
-    data_1, labels_1 = classe_1(5000, 0, 20)
-    data_2, labels_2 = classe_2(5000, 0, 20)
+    data_1, labels_1 = classe_1(10000, 0, 20)
+    data_2, labels_2 = classe_2(10000, 0, 20)
     data = np.vstack((data_1, data_2))
     labels = np.vstack((labels_1, labels_2))
 
@@ -59,11 +64,27 @@ if __name__ == "__main__":
 
     # Defining training parameters
     loss_f = torch.nn.CrossEntropyLoss()
-    opt = torch.optim.SGD(mlp.parameters(), lr=0.005)
-    EPOCHS = 150
+    opt = torch.optim.SGD(mlp.parameters(), lr=0.0001)
+    EPOCHS = 300
 
     # Fit MLP on data
-    train_loss, valid_loss = mlp.fit(x_train, y_train, x_valid, y_valid, loss_f, opt, batch_size=16, epochs=EPOCHS)
+    train_loss, valid_loss = mlp.fit(x_train, y_train, x_valid, y_valid, loss_f, opt, batch_size=64, epochs=EPOCHS)
+
+    mlp.eval()
+    predictions = mlp.infer(x_valid).data.numpy()
+    labels = np.argmax(y_valid, axis=1)
+    predictions = np.argmax(predictions, axis=1)
+    accuracy = accuracy_score(labels, predictions)
+    print("acc: ", accuracy)
+
+    classes = ["funcao 1", "funcao 2"]
+    cf_matrix = confusion_matrix(labels, predictions)
+    df_cm = pd.DataFrame(cf_matrix, index = [i for i in classes],
+                        columns = [i for i in classes])
+    plt.figure(figsize = (12,7))
+    sn.heatmap(df_cm, annot=True)
+    plt.savefig('output.png')
+
 
     # ploting and testing
     plt.plot(range(EPOCHS), train_loss, c='r', label="Train Loss")
